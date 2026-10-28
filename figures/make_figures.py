@@ -183,43 +183,52 @@ def panel_weather_risk(df):
 
 
 def panel_traffic_weather(df):
-    """Panel D: disruption rate by traffic level (vs. the airport's median in that year) and hazard count.
+    """Panel D: disruption rate by traffic pressure and weather severity (the BI notebook's heatmap).
 
-    Cells with fewer than 50 airport-days are greyed out.
+    Traffic pressure compares a day's arrivals with the airport's median day in the same year.
+    Every cell shows its rate and number of days; cells with fewer than 50 days are hatched.
     """
+    from matplotlib.colors import Normalize
+    from matplotlib.patches import Rectangle
+
     d = df.copy()
     # Median over all days first, as in the BI notebook; only then drop days without full weather or a label
     d["median_arrivals"] = d.groupby(["airport_icao", "year"])["arrivals"].transform("median")
     observed = d[list(WEATHER.values())].notna().all(axis=1)
     d = d[observed & d["disrupted_day"].notna()]
-    d["traffic"] = pd.cut(d["arrivals"] / d["median_arrivals"], [-np.inf, 0.8, 1.0, 1.2, np.inf],
-                          labels=["<80%", "80-100%", "100-120%", ">120%"])
+    traffic_labels = ["Low\n(<80%)", "Normal\n(80\u2013100%)", "High\n(100\u2013120%)", "Very high\n(>120%)"]
+    hazard_labels = ["No hazard", "1 hazard", "2 hazards", "3+ hazards"]
+    d["traffic"] = pd.cut(d["arrivals"] / d["median_arrivals"], [-np.inf, 0.8, 1.0, 1.2, np.inf], labels=traffic_labels)
     hazards = sum((d[c] > 0).astype(int) for c in WEATHER.values())
-    d["hazards"] = pd.cut(hazards, [-1, 0, 1, 2, np.inf], labels=["0", "1", "2", "3+"])
+    d["hazards"] = pd.cut(hazards, [-1, 0, 1, 2, np.inf], labels=hazard_labels)
     rate = d.groupby(["hazards", "traffic"], observed=True)["disrupted_day"].mean().unstack() * 100
     n = d.groupby(["hazards", "traffic"], observed=True).size().unstack()
-    shown = rate.where(n >= 50)
-    cmap = LinearSegmentedColormap.from_list("seq", BLUE_RAMP).with_extremes(bad=MASKED)
-    fig, ax = plt.subplots(figsize=(3.5, 2.6))
-    im = ax.imshow(np.ma.masked_invalid(shown.values.astype(float)), cmap=cmap, vmin=0, vmax=30, aspect="auto")
-    for i in range(shown.shape[0]):
-        for j in range(shown.shape[1]):
-            v = shown.iloc[i, j]
-            if pd.notna(v):
-                ax.text(j, i, f"{v:.1f}%\nn={int(n.iloc[i, j]):,}", ha="center", va="center", fontsize=5.8,
-                        color="white" if v > 18 else INK)
-            else:
-                ax.text(j, i, f"n={int(n.iloc[i, j])}", ha="center", va="center", fontsize=5.4, color=INK_2)
-    ax.set_xticks(range(shown.shape[1]), shown.columns, fontsize=6.2)
-    ax.set_yticks(range(shown.shape[0]), shown.index, fontsize=6.2)
-    ax.set_xlabel("Arrivals relative to the airport's median day in the same year", fontsize=6.4)
-    ax.set_ylabel("Adverse weather conditions", fontsize=6.4)
-    ax.tick_params(length=0)
+
+    cmap, norm = plt.get_cmap("viridis"), Normalize(vmin=0, vmax=26)
+    fig, ax = plt.subplots(figsize=(3.6, 2.75))
+    im = ax.pcolormesh(rate.values.astype(float), cmap=cmap, norm=norm, edgecolors=SURFACE, linewidth=2.5)
+    ax.invert_yaxis()  # first row (no hazard) at the top, as in the notebook
+    for i in range(rate.shape[0]):
+        for j in range(rate.shape[1]):
+            v, days = rate.iloc[i, j], int(n.iloc[i, j])
+            r, g, b, _ = cmap(norm(v))
+            light_cell = 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.45
+            ink = "#111111" if light_cell else "#ffffff"
+            ax.text(j + 0.5, i + 0.42, f"{v:.1f}%", ha="center", va="center", fontsize=6.8, fontweight="bold", color=ink)
+            ax.text(j + 0.5, i + 0.70, f"n={days:,}", ha="center", va="center", fontsize=4.9, color=ink, alpha=0.8)
+            if days < 50:  # too few days for a stable rate: keep the value but mark it
+                ax.add_patch(Rectangle((j + 0.04, i + 0.04), 0.92, 0.92, fill=False, hatch="////",
+                                       edgecolor=(1, 1, 1, 0.28), linewidth=0))
+    ax.set_xticks(np.arange(rate.shape[1]) + 0.5, rate.columns, fontsize=5.8)
+    ax.set_yticks(np.arange(rate.shape[0]) + 0.5, rate.index, fontsize=6.2)
+    ax.set_xlabel("Traffic pressure: arrivals vs. the airport's median day that year", fontsize=6.2, labelpad=6)
+    ax.set_ylabel("Adverse weather conditions", fontsize=6.2)
+    ax.tick_params(length=0, pad=3)
     for s in ax.spines.values():
         s.set_visible(False)
     cb = fig.colorbar(im, ax=ax, fraction=0.045, pad=0.03)
     cb.set_label("Disrupted airport-days (%)", fontsize=6.2)
-    cb.ax.tick_params(labelsize=6)
+    cb.ax.tick_params(labelsize=5.8, length=0)
     cb.outline.set_visible(False)
     save(fig, "panelD_disruption_by_traffic_and_weather.png")
 
