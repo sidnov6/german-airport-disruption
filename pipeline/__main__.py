@@ -14,6 +14,7 @@ from .download import AcquisitionError
 
 
 def main(argv=None) -> int:
+    """Run `download` or `build` with the given config and print a short summary; exit code 1 on failure."""
     ap = argparse.ArgumentParser(prog="pipeline")
     ap.add_argument("command", choices=["download", "build"])
     ap.add_argument("--config", default="pipeline/config.yaml")

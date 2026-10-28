@@ -42,6 +42,7 @@ DWD = {
 
 # Present-weather code groups, WMO code tables 4677 (ww 00-99, observer) and 4680 (wawa, stored as 100-199, automatic).
 def _r(a, b):
+    """Inclusive integer range as a set, used to write the WMO weather-code groups."""
     return set(range(a, b + 1))
 
 WW_GROUPS = {
@@ -60,6 +61,7 @@ EARTH_RADIUS_KM = 6371.0088
 
 
 def haversine_km(lat1, lon1, lat2, lon2) -> np.ndarray:
+    """Great-circle distance in km between two latitude/longitude points (used for station-airport distance)."""
     lat1, lon1, lat2, lon2 = (np.radians(np.asarray(x, dtype=float)) for x in (lat1, lon1, lat2, lon2))
     a = np.sin((lat2 - lat1) / 2) ** 2 + np.cos(lat1) * np.cos(lat2) * np.sin((lon2 - lon1) / 2) ** 2
     return 2 * EARTH_RADIUS_KM * np.arcsin(np.sqrt(a))
@@ -86,7 +88,9 @@ def check_metadata_utc(param_text: str, variables: list[str], start: pd.Timestam
 
 
 class DailyConfig:
+    """The validated contents of pipeline/config.yaml plus resolved paths, years and a config hash."""
     def __init__(self, path: str | Path):
+        """Read the YAML file and reject missing keys, duplicate airports and unknown DWD products."""
         self.path = Path(path).resolve()
         self.root = self.path.parent.parent  # pipeline/config.yaml -> repository root
         self.raw = yaml.safe_load(self.path.read_text())
@@ -102,37 +106,45 @@ class DailyConfig:
             raise ValueError(f"unsupported DWD products {unknown}")
 
     def __getitem__(self, k):
+        """Access a raw config value, e.g. cfg['airports']."""
         return self.raw[k]
 
     def p(self, key) -> Path:
+        """Resolve a path from the config's `paths` section relative to the repository root."""
         v = Path(self.raw["paths"][key])
         return v if v.is_absolute() else self.root / v
 
     @property
     def start(self):
+        """First day of the dataset (UTC)."""
         return pd.Timestamp(self.raw["date_start"], tz="UTC")
 
     @property
     def end(self):
+        """Day after the last day of the dataset (UTC, exclusive)."""
         return pd.Timestamp(self.raw["date_end_exclusive"], tz="UTC")
 
     @property
     def years(self):
+        """Calendar years covered, e.g. 2014..2025."""
         return list(range(self.start.year, (self.end - pd.Timedelta(days=1)).year + 1))
 
     @property
     def config_hash(self):
+        """SHA-256 of the config without paths, written to the outputs to tie them to the settings used."""
         sem = {k: v for k, v in self.raw.items() if k != "paths"}
         return hashlib.sha256(json.dumps(sem, sort_keys=True).encode()).hexdigest()
 
     @property
     def out_dir(self) -> Path:
+        """Folder the processed dataset is written to (data/processed)."""
         return self.p("processed")
 
 
 # ----------------------------------------------------------------------------- acquisition
 
 def _validate_bz2(path: Path) -> None:
+    """Decompress a whole bz2 file once to prove it is complete and not corrupted."""
     try:
         with bz2.open(path) as f:
             while f.read(1 << 20):
@@ -142,6 +154,7 @@ def _validate_bz2(path: Path) -> None:
 
 
 def _listing(url: str) -> str:
+    """Fetch a DWD directory listing (HTML) to find each station's exact archive name."""
     r = requests.get(url, timeout=(15, 60))
     if r.status_code != 200:
         raise AcquisitionError(f"HTTP {r.status_code} listing {url}")
@@ -149,6 +162,10 @@ def _listing(url: str) -> str:
 
 
 def acquire(cfg: DailyConfig) -> list[dict]:
+    """Download all raw inputs (12 EUROCONTROL years, 6 DWD products x 12 stations) and record them in the manifest.
+
+    A cached file whose hash differs from the manifest stops the run, so a silently revised source is noticed.
+    """
     manifest = Manifest(cfg.p("metadata") / "source_manifest.json")
     recs = []
     for y in cfg.years:
@@ -206,6 +223,10 @@ EC_COLUMNS = ["YEAR", "MONTH_NUM", "MONTH_MON", "FLT_DATE", "APT_ICAO", "APT_NAM
 
 
 def load_eurocontrol(cfg: DailyConfig) -> tuple[pd.DataFrame, dict]:
+    """Read the yearly EUROCONTROL files, keep the 12 airports and parse dates.
+
+    Returns the rows and a per-year audit (rows read, rows kept, encoding fallbacks, ATFM versions).
+    """
     icaos = [a["icao"] for a in cfg["airports"]]
     parts, audit = [], {}
     for y in cfg.years:
@@ -230,6 +251,10 @@ def load_eurocontrol(cfg: DailyConfig) -> tuple[pd.DataFrame, dict]:
 # ----------------------------------------------------------------------------- DWD hourly -> daily
 
 def parse_dwd(zip_path: Path, prod: str, station: str, start: pd.Timestamp, end: pd.Timestamp) -> pd.DataFrame:
+    """Parse one DWD hourly archive into a UTC-indexed frame of the variables we use.
+
+    Checks the header, the station id and that the metadata states UTC; -999 becomes missing.
+    """
     folder, header, vars_, text_cols = DWD[prod]
     with zipfile.ZipFile(zip_path) as zf:
         members = [m for m in zf.namelist() if m.startswith(f"produkt_{prod.lower()}_stunde_")]
@@ -278,15 +303,18 @@ def daily_weather(hourly: dict[str, pd.DataFrame], start, end, min_valid: int) -
     out = pd.DataFrame(index=pd.DatetimeIndex(sorted(set(day)), name="date"))
 
     def valid_mask(col):
+        """Number of valid (non-missing) hours of a variable per day."""
         return g(h[col].notna()).sum()
 
     def agg(col, fn, name, need=True):
+        """Daily aggregate of a variable (mean, min, max or sum), missing when fewer than min_valid hours exist."""
         v = getattr(g(h[col]), fn)()
         n = valid_mask(col)
         out[name] = v.where(n >= min_valid) if need else v
         return n
 
     def count(cond, col, name):
+        """Daily count of hours meeting a condition, among valid hours only."""
         n = valid_mask(col)
         out[name] = g(cond.astype(float).where(h[col].notna())).sum().where(n >= min_valid)
 
@@ -321,6 +349,7 @@ def daily_weather(hourly: dict[str, pd.DataFrame], start, end, min_valid: int) -
 
 
 def load_weather(cfg: DailyConfig) -> tuple[pd.DataFrame, dict]:
+    """Parse all six DWD products for every airport and aggregate them to daily values."""
     start, end = cfg.start, cfg.end
     frames, audit = [], {}
     for a in cfg["airports"]:
@@ -342,6 +371,7 @@ def load_weather(cfg: DailyConfig) -> tuple[pd.DataFrame, dict]:
 # ----------------------------------------------------------------------------- calendar
 
 def easter(y: int) -> pd.Timestamp:
+    """Date of Easter Sunday for a year (Gregorian computus), used for the movable holidays."""
     a, b, c = y % 19, y // 100, y % 100
     d, e = b // 4, b % 4
     f = (b + 8) // 25
@@ -356,6 +386,7 @@ def easter(y: int) -> pd.Timestamp:
 
 
 def german_national_holidays(years) -> set:
+    """All German national public holidays for the given years (fixed dates plus Easter-based ones)."""
     out = set()
     for y in years:
         e = easter(y)
@@ -369,6 +400,7 @@ def german_national_holidays(years) -> set:
 # ----------------------------------------------------------------------------- dataset
 
 def assign_split(dates: pd.Series, splits: dict) -> pd.Series:
+    """Label each date train / model_select / calibrate / test from the config; overlapping ranges are an error."""
     out = pd.Series(pd.NA, index=dates.index, dtype="string")
     hits = pd.Series(0, index=dates.index)
     for name, (a, b) in splits.items():
@@ -394,6 +426,7 @@ def history_features(df: pd.DataFrame) -> pd.DataFrame:
     df["disrupted_lag1"] = prev("disrupted_day")
 
     def trailing(col, w, minp):
+        """Mean of a column over the previous w days (excluding today), requiring at least minp values."""
         return g[col + "__f"].transform(lambda s: s.shift(1).rolling(w, min_periods=minp).mean())
 
     df["arrivals_mean_7d"] = trailing("arrivals", 7, 5)
@@ -417,6 +450,10 @@ TARGETS = ["disrupted_day", "severe_disrupted_day", "any_atfm_delay_day", "weath
 
 
 def build(cfg: DailyConfig) -> dict:
+    """Assemble the airport-day table: grid, EUROCONTROL join, weather join, targets, calendar, history, split.
+
+    A blank EUROCONTROL delay cell is treated as 0 (no delay recorded); rows with no arrivals get no label.
+    """
     ec, ec_audit = load_eurocontrol(cfg)
     wx, wx_audit = load_weather(cfg)
     days = pd.date_range(cfg.start, cfg.end, freq="D", inclusive="left", tz="UTC")
@@ -447,6 +484,7 @@ def build(cfg: DailyConfig) -> dict:
     t = cfg["targets"]
 
     def lab(cond):
+        """Turn a boolean condition into a nullable 0/1 label that is missing where arrivals are missing or zero."""
         s = pd.Series(pd.NA, index=df.index, dtype="Int8")
         s[ok] = cond[ok].astype("int8")
         return s
@@ -477,6 +515,7 @@ def build(cfg: DailyConfig) -> dict:
 
 
 def feature_contract(cfg: DailyConfig) -> dict:
+    """Describe the 37 allowed predictors (with when each is known) and the forbidden same-day outcome columns."""
     wx_av = "Same-day OBSERVED weather standing in for a day-ahead forecast (perfect-forecast assumption; scores are an upper bound)"
     hist_av = "Computed from days strictly before the row's day (known at the start of the day)"
     cal_av = "Known in advance"
@@ -522,6 +561,7 @@ def feature_contract(cfg: DailyConfig) -> dict:
 
 
 def checks(df: pd.DataFrame, contract: dict, cfg: DailyConfig) -> dict:
+    """Run the build checks: row count, unique keys, splits, label consistency, no leakage, lag correctness."""
     n_exp = len(cfg["airports"]) * len(pd.date_range(cfg.start, cfg.end, freq="D", inclusive="left"))
     allow = contract["predictor_allowlist"]
     c = {
@@ -545,8 +585,10 @@ def checks(df: pd.DataFrame, contract: dict, cfg: DailyConfig) -> dict:
 
 
 def quality(df: pd.DataFrame, contract: dict, cfg: DailyConfig, ec_audit, wx_audit, chk) -> dict:
+    """Summarise the table: label counts by split, airport and year, missing values, source audits and checks."""
     allow = contract["predictor_allowlist"]
     def prev(g):
+        """Rows, labelled rows, disrupted rows and disruption rate for one group."""
         y = g["disrupted_day"].dropna()
         return {"rows": int(len(g)), "labeled": int(len(y)), "disrupted": int(y.sum()), "rate": float(y.mean()) if len(y) else None}
     station_dist = {}
@@ -580,6 +622,7 @@ def station_distances(cfg: DailyConfig) -> dict:
 
 
 def run(cfg: DailyConfig) -> dict:
+    """Build the dataset, check it, and write the parquet/CSV files, contract and quality report."""
     res = build(cfg)
     df = res["df"]
     contract = feature_contract(cfg)
@@ -601,6 +644,7 @@ def run(cfg: DailyConfig) -> dict:
 
 
 def render_md(q: dict, contract: dict) -> str:
+    """Format the quality summary as the Markdown report data/processed/data_quality.md."""
     f = lambda v: "—" if v is None else (f"{v:.3f}" if isinstance(v, float) else f"{v:,}" if isinstance(v, int) else str(v))  # noqa: E731
     L = [f"# Daily airport dataset — {q['dataset_version']}", "",
          f"{q['rows']:,} airport-days · {q['airports']} airports · {q['date_range'][0]} to {q['date_range'][1]} · "

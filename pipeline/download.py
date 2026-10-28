@@ -17,10 +17,12 @@ MAX_ATTEMPTS = 4
 
 
 class AcquisitionError(RuntimeError):
+    """A download or integrity check failed; the build stops instead of using a bad file."""
     pass
 
 
 def sha256_file(path: Path, chunk: int = 1 << 20) -> str:
+    """Return the SHA-256 hex digest of a file, read in 1 MB chunks."""
     h = hashlib.sha256()
     with open(path, "rb") as f:
         while b := f.read(chunk):
@@ -29,10 +31,15 @@ def sha256_file(path: Path, chunk: int = 1 << 20) -> str:
 
 
 def utc_now_iso() -> str:
+    """Current UTC time as an ISO 8601 string, used for retrieval timestamps."""
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def sniff_format(path: Path) -> str:
+    """Guess a file's type from its first bytes (zip, gzip, bzip2, html, ...).
+
+    Catches servers that return an HTML error page with status 200.
+    """
     with open(path, "rb") as f:
         head = f.read(8)
     if head.startswith(b"PK\x03\x04") or head.startswith(b"PK\x05\x06"):
@@ -68,6 +75,7 @@ def validate_zip(path: Path) -> list[str]:
 
 
 def is_safe_member(name: str) -> bool:
+    """True if an archive member path cannot escape the extraction folder (no absolute paths or '..')."""
     p = PurePosixPath(name.replace("\\", "/"))
     return not (p.is_absolute() or ".." in p.parts or (p.parts and ":" in p.parts[0]))
 
@@ -141,6 +149,7 @@ class Manifest:
     """data/source_manifest.json: one record per downloaded file, keyed by source_id."""
 
     def __init__(self, path: Path):
+        """Load the existing manifest, if any, keyed by source_id."""
         self.path = path
         self.records: dict[str, dict] = {}
         if path.exists():
@@ -148,6 +157,7 @@ class Manifest:
             self.records = {r["source_id"]: r for r in data.get("sources", [])}
 
     def upsert(self, record: dict) -> None:
+        """Add or update one file record, keeping the original retrieval time when a cached file is reused."""
         old = self.records.get(record["source_id"], {})
         merged = {**old, **{k: v for k, v in record.items() if v is not None or k not in old}}
         # Keep the original retrieval time/status when a cached file is merely reused.
@@ -158,6 +168,7 @@ class Manifest:
         self.records[record["source_id"]] = merged
 
     def save(self) -> None:
+        """Write the manifest sorted by source_id so diffs stay readable."""
         self.path.parent.mkdir(parents=True, exist_ok=True)
         out = {"sources": [self.records[k] for k in sorted(self.records)]}
         self.path.write_text(json.dumps(out, indent=2, sort_keys=True, default=str) + "\n")

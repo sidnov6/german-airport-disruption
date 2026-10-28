@@ -45,12 +45,14 @@ MIN_EVENTS = 10
 
 
 def save(fig, name):
+    """Save a figure as a 300 dpi PNG in the output folder."""
     fig.savefig(OUT / name, dpi=300, bbox_inches="tight")
     plt.close(fig)
     print("saved", name)
 
 
 def load_predictions():
+    """Load the saved 2024-2025 test predictions of the two classifiers (same rows, same labels)."""
     lr = pd.read_csv(ROOT / "outputs" / "03_logistic_regression" / "test_predictions_2024_2025.csv")
     gb = pd.read_csv(ROOT / "outputs" / "04_lightgbm_classification" / "test_predictions_2024_2025.csv")
     assert (lr["actual"].to_numpy() == gb["actual"].to_numpy()).all()
@@ -65,11 +67,13 @@ def interpolated_pr(y, score):
 
 
 def operating_point(y, score, threshold):
+    """Recall and precision when every day with a score at or above the threshold is flagged."""
     flag = score >= threshold
     return (flag & (y == 1)).sum() / (y == 1).sum(), (flag & (y == 1)).sum() / flag.sum()
 
 
 def panel_pr_curves(lr, gb):
+    """Panel B: interpolated precision-recall curves for both classifiers and the 28-day benchmark."""
     y = lr["actual"].to_numpy()
     fig, ax = plt.subplots(figsize=(4.4, 3.5))
     rules = [("LightGBM", gb["probability"].to_numpy(), LIGHTGBM, 3),
@@ -107,6 +111,7 @@ def panel_pr_curves(lr, gb):
 
 
 def panel_airport_ap(lr, gb):
+    """Extra panel: average precision per airport, for airports with at least 20 disrupted test days."""
     rows = []
     for icao, g in lr.groupby("airport_icao"):
         n = int(g["actual"].sum())
@@ -134,6 +139,10 @@ def panel_airport_ap(lr, gb):
 
 
 def panel_weather_risk(df):
+    """Panel C: disruption risk ratio (with / without each weather condition) per airport.
+
+    Cells backed by fewer than 10 disrupted days are greyed out.
+    """
     ratios = pd.DataFrame(index=sorted(df["airport_name"].unique()), columns=list(WEATHER), dtype=float)
     counts = ratios.copy()
     for airport, g in df.groupby("airport_name"):
@@ -174,6 +183,10 @@ def panel_weather_risk(df):
 
 
 def panel_traffic_weather(df):
+    """Panel D: disruption rate by traffic level (vs. the airport's median in that year) and hazard count.
+
+    Cells with fewer than 50 airport-days are greyed out.
+    """
     d = df.copy()
     observed = d[list(WEATHER.values())].notna().all(axis=1)
     d = d[observed & d["disrupted_day"].notna()]
@@ -211,6 +224,7 @@ def panel_traffic_weather(df):
 
 
 def panel_pipeline():
+    """Panel E: diagram of the data flow from the two sources to the BI notebooks and models."""
     fig, ax = plt.subplots(figsize=(7.6, 3.2))
     ax.set_xlim(0, 100)
     ax.set_ylim(0, 45)
@@ -218,9 +232,11 @@ def panel_pipeline():
     strip = 4.6  # height of the coloured title strip
 
     def bullets(lines):  # a line starting with two spaces continues the previous bullet
+        """Join card lines into bullet text; a line starting with two spaces continues the previous bullet."""
         return "\n".join(f"     {s.strip()}" if s.startswith("  ") else f"\u2022  {s}" for s in lines)
 
     def card(x, y, w, h, title, lines, color, tint):
+        """Draw one rounded card with a coloured title strip and bullet text."""
         ax.add_patch(FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0,rounding_size=1.4",
                                     facecolor=tint, edgecolor="none", zorder=1))
         ax.add_patch(FancyBboxPatch((x, y + h - strip), w, strip, boxstyle="round,pad=0,rounding_size=1.4",
@@ -232,6 +248,7 @@ def panel_pipeline():
                 fontsize=5.4, color=INK, linespacing=1.5, zorder=3)
 
     def arrow(x1, x2, y):
+        """Draw a horizontal arrow between two cards."""
         ax.annotate("", (x2, y), (x1, y), arrowprops=dict(arrowstyle="-|>,head_length=0.45,head_width=0.22",
                                                          color="#8a8984", linewidth=1.0, shrinkA=0, shrinkB=0))
 
@@ -281,6 +298,7 @@ AIRPORT_LABELS = {  # display name, label offset in points (dx, dy)
 
 
 def panel_map(df):
+    """Panel A: map of the 12 airports, bubble area = arrivals, colour = share of disrupted days."""
     import json
     import matplotlib.patheffects as pe
     from matplotlib.patches import Polygon
@@ -349,6 +367,7 @@ def panel_map(df):
 
 
 def main():
+    """Load the data and predictions, then draw every panel."""
     lr, gb = load_predictions()
     df = pd.read_parquet(DATA)
     df["disrupted_day"] = df["disrupted_day"].astype("float64")
