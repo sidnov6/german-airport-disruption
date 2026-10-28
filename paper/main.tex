@@ -47,10 +47,10 @@
 \end{minipage}\\[0.8em]
 {\footnotesize\color{factgrey}\itshape
 Time range: 2014--2025 \quad$\cdot$\quad Airports: 12 \quad$\cdot$\quad Airport-days: 52,596 \quad$\cdot$\quad Predictors: 37\\
-Models: logistic regression, LightGBM \quad$\cdot$\quad Validation: time-based split, test 2024--2025 evaluated once}
+Models: logistic and ridge regression, LightGBM \quad$\cdot$\quad Validation: time-based split, test 2024--2025 evaluated once}
 \end{center}
 
-%% Figure 1A and 1B (panels C to E are linked below the Results)
+%% Figure 1A and 1B (panels C to E follow the Results)
 \begin{center}
 \begin{minipage}[b]{0.41\linewidth}\centering
 \includegraphics[width=\linewidth]{panelA_airport_map.png}
@@ -71,7 +71,7 @@ Models: logistic regression, LightGBM \quad$\cdot$\quad Validation: time-based s
 When an airport cannot accept all planned arrivals, EUROCONTROL's Network Manager holds flights at their departure airports. The resulting air traffic flow management (ATFM) delay is published per airport and day, with its cause [1, 2]. Weather is the largest recorded cause at German airports: 67\% of all ATFM arrival delay minutes at the 12 airports studied here, 2014--2025. We asked whether public traffic and weather data are enough to anticipate which airport-days will be disrupted, defined as days on which at least 2\% of arrivals receive more than 15 minutes of ATFM delay. Such days are concentrated at the large hubs: 19.4\% of days at Frankfurt against 6.2\% overall (Fig.~1A).
 
 \paragraph{Results}
-We joined daily EUROCONTROL arrival delays [Data~1] with hourly observations from the DWD station at each airport [Data~2] into 52,596 airport-days (Fig.~1E; all processing steps in [Protocol~1]). Models used 37 predictors: calendar, traffic and delay history from earlier days only, and same-day observed weather as a stand-in for a perfect forecast. They were trained on 2014--2021, tuned on 2022, calibrated on 2023 and scored once on 2024--2025 (8,771 airport-days, 533 disrupted).
+We joined daily EUROCONTROL arrival delays [Data~1] with hourly observations from the DWD station at each airport [Data~2] into 52,596 airport-days (Fig.~1E; all processing steps in [Protocol~1]). Models used 37 predictors: calendar, traffic and delay history from earlier days only, and same-day observed weather as a stand-in for a perfect forecast. They were trained on 2014--2021, tuned and calibrated on 2022, with the calibration method and alert threshold chosen on 2023, and scored once on 2024--2025 (8,771 airport-days, 533 disrupted).
 
 LightGBM [4] reached an average precision (AP) of 0.39 and a ROC-AUC of 0.90; logistic regression [3] reached 0.38 and 0.89 (Fig.~1B). At an alert threshold of 0.20 chosen on 2023, LightGBM flagged 682 days with a precision of 0.39 and a recall of 0.50. The gain over recent history was largest at Frankfurt (AP 0.63 vs 0.30) and smallest at Stuttgart, where both models caught only 3 of 52 disrupted days [Code~1].
 
@@ -100,6 +100,8 @@ The descriptive analysis points to weather and traffic. Thunderstorm days were 3
 \vfill
 
 \clearpage
+\linespread{1.25}\selectfont % reference page: tighter than the body text so all sources fit on one page
+\setlist[enumerate]{itemsep=0.15em,topsep=0.3em}
 %% References
 \paragraph{References}
 \begin{enumerate}[label={[\arabic*]}]
@@ -130,5 +132,9 @@ The descriptive analysis points to weather and traffic. Thunderstorm days were 3
 \item Data sources and processing: download, cleaning, hourly-to-daily aggregation, targets and features. \url{\repo/blob/main/docs/DATA.md}
 \item Model training and evaluation protocol (time-based split, tuning, calibration, single test evaluation). \url{\repo/tree/main/notebooks}
 \end{enumerate}
+
+%% Declaration of AI use
+\paragraph{Use of AI tools}
+We used a large language model, Claude (Anthropic), as an assistant in three parts of this project: writing and reviewing code for the data pipeline, notebooks and figures; building the presentation slides; and drafting and typesetting this micropublication. The authors designed the study, reviewed all code, results and text, and take full responsibility for the content. Every reported number can be traced to the saved outputs in [Code~1].
 
 \end{document}

@@ -281,7 +281,7 @@ def panel_pipeline():
             ha="left", va="top", fontsize=5.4, color=INK, linespacing=1.5, zorder=3)
 
     card(79, 22, 21, 18.5, "BI notebooks", ["KPIs as ratios of sums", "delay causes by airport", "weather risk ratios", "traffic \u00d7 weather"], green, green_t)
-    card(79, 0.5, 21, 18.5, "Models", ["train 2014\u20132021", "tune 2022, calibrate 2023", "test 2024\u20132025, once", "logistic reg. + LightGBM"], green, green_t)
+    card(79, 0.5, 21, 18.5, "Models", ["train 2014\u20132021", "tune + calibrate 2022", "pick threshold 2023", "test 2024\u20132025, once", "logistic, ridge, LightGBM"], green, green_t)
 
     for yy in (31.25, 9.75):
         arrow(21.9, 25.6, yy)
