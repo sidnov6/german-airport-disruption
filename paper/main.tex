@@ -10,6 +10,7 @@
 \usepackage[breaklinks=true,hidelinks,colorlinks=true,linkcolor=tabblue,citecolor=tabblue,urlcolor=tabblue]{hyperref}
 \usepackage{enumitem} % control over lists
 \usepackage{xurl} % allow long URLs to break across lines
+\usepackage{booktabs} % clean rules in the results table
 
 % Custom colors and formatting
 \usepackage{color}
@@ -73,26 +74,63 @@ When an airport cannot accept all planned arrivals, EUROCONTROL's Network Manage
 \paragraph{Results}
 We joined daily EUROCONTROL arrival delays [Data~1] with hourly observations from the DWD station at each airport [Data~2] into 52,596 airport-days (Fig.~1E; all processing steps in [Protocol~1]). Models used 37 predictors: calendar, traffic and delay history from earlier days only, and same-day observed weather as a stand-in for a perfect forecast. They were trained on 2014--2021, tuned and calibrated on 2022, with the calibration method and alert threshold chosen on 2023, and scored once on 2024--2025 (8,771 airport-days, 533 disrupted).
 
-LightGBM [4] reached an average precision (AP) of 0.39 and a ROC-AUC of 0.90; logistic regression [3] reached 0.38 and 0.89 (Fig.~1B). At an alert threshold of 0.20 chosen on 2023, LightGBM flagged 682 days with a precision of 0.39 and a recall of 0.50. The gain over recent history was largest at Frankfurt (AP 0.63 vs 0.30) and smallest at Stuttgart, where both models caught only 3 of 52 disrupted days [Code~1].
+LightGBM [4] reached an average precision (AP) of 0.39 and a ROC-AUC of 0.90; logistic regression [3] reached 0.38 and 0.89 (Fig.~1B, Table~1). At an alert threshold of 0.20 chosen on 2023, LightGBM flagged 682 days with a precision of 0.39 and a recall of 0.50. The gain over recent history was largest at Frankfurt (AP 0.63 vs 0.30) and smallest at Stuttgart, where both models caught only 3 of 52 disrupted days [Code~1].
 
-The descriptive analysis points to weather and traffic. Thunderstorm days were 3.9 to 5.5 times as likely to be disrupted as other days at Frankfurt, Munich and Stuttgart (Fig.~1C). Disruption rose with traffic and with the number of adverse weather conditions, reaching 25.7\% on days with two conditions and 100--120\% of the airport's median traffic (Fig.~1D). Predicting delay minutes per arrival was harder: LightGBM barely beat predicting zero (MAE 0.200 vs 0.207). Because observed weather replaces a forecast, all scores are an upper bound for day-ahead use.
+The descriptive analysis points to weather and traffic. Thunderstorm days were 3.9 to 5.2 times as likely to be disrupted as other days at Frankfurt, Munich and Stuttgart (Fig.~1C). Disruption rose with traffic and with the number of adverse weather conditions, reaching 25.7\% on days with two conditions and 100--120\% of the airport's median traffic (Fig.~1D). Predicting delay minutes per arrival was harder: LightGBM barely beat predicting zero (MAE 0.200 vs 0.207; Table~1). Because observed weather replaces a forecast, all scores are an upper bound for day-ahead use.
+
+%% Table 1: all four models and their benchmarks on the test years
+\vspace{0.2em}
+\begin{center}
+{\footnotesize\linespread{1.1}\selectfont\setlength{\tabcolsep}{4pt}
+\begin{minipage}[t]{0.56\linewidth}\centering
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+\textit{Disrupted day?} & AP & ROC-AUC & Brier & Prec. & Recall\\
+\midrule
+LightGBM classifier & \textbf{0.389} & \textbf{0.895} & \textbf{0.045} & \textbf{0.39} & 0.50\\
+Logistic regression & 0.376 & 0.889 & 0.046 & 0.34 & 0.56\\
+28-day rate & 0.242 & 0.848 & 0.050 & 0.25 & \textbf{0.62}\\
+Constant rate & 0.061 & 0.500 & 0.057 & -- & --\\
+\bottomrule
+\end{tabular}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.41\linewidth}\centering
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textit{Delay min per arrival} & MAE & RMSE & $R^2$\\
+\midrule
+LightGBM (Tweedie) & \textbf{0.200} & \textbf{0.947} & \textbf{0.16}\\
+Ridge regression & 0.290 & 0.957 & 0.14\\
+Always zero & 0.207 & 1.054 & $-$0.04\\
+28-day average & 0.298 & 0.989 & 0.08\\
+\bottomrule
+\end{tabular}
+\end{minipage}\\[0.5em]
+\begin{minipage}{\linewidth}
+\textbf{Table 1} Test results on 2024--2025 (8,771 airport-days, scored once), best value per column in bold. Left: classifiers, with precision and recall at the alert threshold chosen on 2023 (0.20; 0.15 for the 28-day rule). Right: regressors. Lower is better for Brier, MAE and RMSE.\par
+\end{minipage}
+}
+\end{center}
 
 %% Figure 1C to 1E (full-resolution files linked in the captions)
 \vfill
 \begin{center}
 \begin{minipage}[b]{0.49\linewidth}\centering
-\includegraphics[width=\linewidth]{panelC_weather_risk_ratio_by_airport.png}
+\includegraphics[width=0.8\linewidth]{panelC_weather_risk_ratio_by_airport.png}
 \end{minipage}\hfill
 \begin{minipage}[b]{0.49\linewidth}\centering
-\includegraphics[width=\linewidth]{panelD_disruption_by_traffic_and_weather.png}\\[0.9cm]
+\includegraphics[width=0.8\linewidth]{panelD_disruption_by_traffic_and_weather.png}\\[0.75cm]
 \end{minipage}\\[0.2em]
 \begin{minipage}[t]{0.49\linewidth}
-{\footnotesize\linespread{1.15}\selectfont \textbf{Fig.~1C} Disruption rate on days with a weather condition divided by the rate on days without it, 2014--2025. Grey: fewer than 10 disrupted days (n = disrupted days with the condition).\par}
+{\footnotesize\linespread{1.15}\selectfont \textbf{Fig.~1C} Disruption rate on days with a weather condition divided by the rate on days without it, 2014--2025; a missing reading counts as no event. Hatched: fewer than 10 disrupted days with the condition.\par}
 \end{minipage}\hfill
 \begin{minipage}[t]{0.49\linewidth}
 {\footnotesize\linespread{1.15}\selectfont \textbf{Fig.~1D} Disruption rate by traffic pressure (arrivals relative to the airport's median day, 2014--2025) and weather severity (number of adverse conditions). n = days per cell; hatched: fewer than 50 days.\par}
-\end{minipage}\\[1.8em]
-\includegraphics[width=\linewidth]{panelE_data_pipeline.png}\\[0.2em]
+\end{minipage}
+\end{center}
+\vfill
+\begin{center}
+\includegraphics[width=0.7\linewidth]{panelE_data_pipeline.png}\\[0.2em]
 \begin{minipage}{\linewidth}
 {\footnotesize\linespread{1.15}\selectfont \textbf{Fig.~1E} From the two public sources to the airport-day table used by the BI notebooks and the models; every step is documented in [Protocol~1].\par}
 \end{minipage}

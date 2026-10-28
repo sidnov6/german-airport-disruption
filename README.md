@@ -26,7 +26,7 @@ A **disrupted day** is an airport-day on which at least 2% of arriving flights r
 
 - Both classifiers clearly beat the history benchmark. Most of LightGBM's lead comes from Frankfurt (AP 0.63 vs 0.55).
 - Regression adds little: 89% of airport-days have no ATFM delay, so predicting zero is hard to beat on MAE.
-- Thunderstorms are the strongest weather signal: on thunderstorm days, Frankfurt, Munich and Stuttgart were 3.9 to 5.5 times as likely to be disrupted as on other days.
+- Thunderstorms are the strongest weather signal: on thunderstorm days, Frankfurt, Munich and Stuttgart were 3.9 to 5.2 times as likely to be disrupted as on other days.
 - Same-day observed weather is used as if it were a perfect forecast, so these scores are an upper bound for real day-ahead use.
 
 ## Data
