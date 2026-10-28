@@ -188,10 +188,11 @@ def panel_traffic_weather(df):
     Cells with fewer than 50 airport-days are greyed out.
     """
     d = df.copy()
+    # Median over all days first, as in the BI notebook; only then drop days without full weather or a label
+    d["median_arrivals"] = d.groupby(["airport_icao", "year"])["arrivals"].transform("median")
     observed = d[list(WEATHER.values())].notna().all(axis=1)
     d = d[observed & d["disrupted_day"].notna()]
-    median = d.groupby(["airport_icao", "year"])["arrivals"].transform("median")
-    d["traffic"] = pd.cut(d["arrivals"] / median, [-np.inf, 0.8, 1.0, 1.2, np.inf],
+    d["traffic"] = pd.cut(d["arrivals"] / d["median_arrivals"], [-np.inf, 0.8, 1.0, 1.2, np.inf],
                           labels=["<80%", "80-100%", "100-120%", ">120%"])
     hazards = sum((d[c] > 0).astype(int) for c in WEATHER.values())
     d["hazards"] = pd.cut(hazards, [-1, 0, 1, 2, np.inf], labels=["0", "1", "2", "3+"])
