@@ -185,21 +185,21 @@ def panel_weather_risk(df):
 def panel_traffic_weather(df):
     """Panel D: disruption rate by traffic pressure and weather severity (the BI notebook's heatmap).
 
-    Traffic pressure compares a day's arrivals with the airport's median day in the same year.
+    Same method as the BI notebook: traffic pressure compares a day's arrivals with the airport's
+    median day over 2014-2025, and a missing weather reading counts as no hazard.
     Every cell shows its rate and number of days; cells with fewer than 50 days are hatched.
     """
     from matplotlib.colors import Normalize
     from matplotlib.patches import Rectangle
 
     d = df.copy()
-    # Median over all days first, as in the BI notebook; only then drop days without full weather or a label
-    d["median_arrivals"] = d.groupby(["airport_icao", "year"])["arrivals"].transform("median")
-    observed = d[list(WEATHER.values())].notna().all(axis=1)
-    d = d[observed & d["disrupted_day"].notna()]
+    # One median per airport over all days, as in the BI notebook; then keep labelled days only
+    d["median_arrivals"] = d.groupby("airport_icao")["arrivals"].transform("median")
+    d = d[d["disrupted_day"].notna()]
     traffic_labels = ["Low\n(<80%)", "Normal\n(80\u2013100%)", "High\n(100\u2013120%)", "Very high\n(>120%)"]
     hazard_labels = ["No hazard", "1 hazard", "2 hazards", "3+ hazards"]
     d["traffic"] = pd.cut(d["arrivals"] / d["median_arrivals"], [-np.inf, 0.8, 1.0, 1.2, np.inf], labels=traffic_labels)
-    hazards = sum((d[c] > 0).astype(int) for c in WEATHER.values())
+    hazards = sum((d[c] > 0).astype(int) for c in WEATHER.values())  # missing reading -> not counted
     d["hazards"] = pd.cut(hazards, [-1, 0, 1, 2, np.inf], labels=hazard_labels)
     rate = d.groupby(["hazards", "traffic"], observed=True)["disrupted_day"].mean().unstack() * 100
     n = d.groupby(["hazards", "traffic"], observed=True).size().unstack()
@@ -221,7 +221,7 @@ def panel_traffic_weather(df):
                                        edgecolor=(1, 1, 1, 0.28), linewidth=0))
     ax.set_xticks(np.arange(rate.shape[1]) + 0.5, rate.columns, fontsize=5.8)
     ax.set_yticks(np.arange(rate.shape[0]) + 0.5, rate.index, fontsize=6.2)
-    ax.set_xlabel("Traffic pressure: arrivals vs. the airport's median day that year", fontsize=6.2, labelpad=6)
+    ax.set_xlabel("Traffic pressure: arrivals vs. the airport's median day, 2014\u20132025", fontsize=6.2, labelpad=6)
     ax.set_ylabel("Adverse weather conditions", fontsize=6.2)
     ax.tick_params(length=0, pad=3)
     for s in ax.spines.values():

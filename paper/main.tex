@@ -75,7 +75,7 @@ We joined daily EUROCONTROL arrival delays [Data~1] with hourly observations fro
 
 LightGBM [4] reached an average precision (AP) of 0.39 and a ROC-AUC of 0.90; logistic regression [3] reached 0.38 and 0.89 (Fig.~1B). At an alert threshold of 0.20 chosen on 2023, LightGBM flagged 682 days with a precision of 0.39 and a recall of 0.50. The gain over recent history was largest at Frankfurt (AP 0.63 vs 0.30) and smallest at Stuttgart, where both models caught only 3 of 52 disrupted days [Code~1].
 
-The descriptive analysis points to weather and traffic. Thunderstorm days were 3.9 to 5.5 times as likely to be disrupted as other days at Frankfurt, Munich and Stuttgart (Fig.~1C). Disruption rose with traffic and with the number of adverse weather conditions, reaching 25.8\% on days with two conditions and 100--120\% of the airport's median traffic (Fig.~1D). Predicting delay minutes per arrival was harder: LightGBM barely beat predicting zero (MAE 0.200 vs 0.207). Because observed weather replaces a forecast, all scores are an upper bound for day-ahead use.
+The descriptive analysis points to weather and traffic. Thunderstorm days were 3.9 to 5.5 times as likely to be disrupted as other days at Frankfurt, Munich and Stuttgart (Fig.~1C). Disruption rose with traffic and with the number of adverse weather conditions, reaching 25.7\% on days with two conditions and 100--120\% of the airport's median traffic (Fig.~1D). Predicting delay minutes per arrival was harder: LightGBM barely beat predicting zero (MAE 0.200 vs 0.207). Because observed weather replaces a forecast, all scores are an upper bound for day-ahead use.
 
 %% Figure 1C to 1E (full-resolution files linked in the captions)
 \vfill
@@ -90,7 +90,7 @@ The descriptive analysis points to weather and traffic. Thunderstorm days were 3
 {\footnotesize\linespread{1.15}\selectfont \textbf{Fig.~1C} Disruption rate on days with a weather condition divided by the rate on days without it, 2014--2025. Grey: fewer than 10 disrupted days (n = disrupted days with the condition).\par}
 \end{minipage}\hfill
 \begin{minipage}[t]{0.49\linewidth}
-{\footnotesize\linespread{1.15}\selectfont \textbf{Fig.~1D} Disruption rate by traffic pressure (arrivals relative to the airport's median day in the same year) and weather severity (number of adverse conditions). n = days per cell; hatched: fewer than 50 days.\par}
+{\footnotesize\linespread{1.15}\selectfont \textbf{Fig.~1D} Disruption rate by traffic pressure (arrivals relative to the airport's median day, 2014--2025) and weather severity (number of adverse conditions). n = days per cell; hatched: fewer than 50 days.\par}
 \end{minipage}\\[1.8em]
 \includegraphics[width=\linewidth]{panelE_data_pipeline.png}\\[0.2em]
 \begin{minipage}{\linewidth}
