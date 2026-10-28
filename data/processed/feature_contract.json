@@ -1,0 +1,386 @@
+{
+  "dataset_version": "de_airports_daily_v1",
+  "config_hash": "503e5a902822d03aed3e7484e2757ca2559da1731f7fd051968b96c2c07552c7",
+  "grain": "airport_icao x UTC date",
+  "predictor_allowlist": [
+    "airport_icao",
+    "weekday",
+    "month",
+    "doy_sin",
+    "doy_cos",
+    "is_weekend",
+    "is_public_holiday",
+    "temp_mean_c",
+    "temp_min_c",
+    "temp_max_c",
+    "frost_day",
+    "rh_mean_pct",
+    "wind_mean_ms",
+    "wind_max_ms",
+    "gust_max_ms",
+    "gust_hours_ge15",
+    "precip_sum_mm",
+    "precip_max_1h_mm",
+    "precip_hours",
+    "cold_precip_hours",
+    "vis_min_m",
+    "low_vis_hours_lt1000",
+    "vis_hours_lt5000",
+    "fog_hours",
+    "thunder_hours",
+    "snow_hours",
+    "freezing_hours",
+    "arrivals_lag1",
+    "arrivals_lag7",
+    "arrivals_mean_7d",
+    "delay_per_arrival_lag1",
+    "share_delayed15_lag1",
+    "disrupted_lag1",
+    "delay_per_arrival_mean_7d",
+    "delay_per_arrival_mean_28d",
+    "disrupted_rate_28d",
+    "weather_delay_per_arrival_mean_28d"
+  ],
+  "predictors": [
+    {
+      "name": "airport_icao",
+      "kind": "categorical",
+      "definition": "ICAO airport code",
+      "availability_assumption": "Known in advance",
+      "allowed_for_model_input": true,
+      "missingness": "null when fewer than min_valid_hours valid hours (weather) or insufficient history (lags)"
+    },
+    {
+      "name": "weekday",
+      "kind": "ordinal",
+      "definition": "UTC weekday, Monday=0",
+      "availability_assumption": "Known in advance",
+      "allowed_for_model_input": true,
+      "missingness": "null when fewer than min_valid_hours valid hours (weather) or insufficient history (lags)"
+    },
+    {
+      "name": "month",
+      "kind": "ordinal",
+      "definition": "1-12",
+      "availability_assumption": "Known in advance",
+      "allowed_for_model_input": true,
+      "missingness": "null when fewer than min_valid_hours valid hours (weather) or insufficient history (lags)"
+    },
+    {
+      "name": "doy_sin",
+      "kind": "numeric",
+      "definition": "sin(2*pi*day_of_year/365.25)",
+      "availability_assumption": "Known in advance",
+      "allowed_for_model_input": true,
+      "missingness": "null when fewer than min_valid_hours valid hours (weather) or insufficient history (lags)"
+    },
+    {
+      "name": "doy_cos",
+      "kind": "numeric",
+      "definition": "cos(2*pi*day_of_year/365.25)",
+      "availability_assumption": "Known in advance",
+      "allowed_for_model_input": true,
+      "missingness": "null when fewer than min_valid_hours valid hours (weather) or insufficient history (lags)"
+    },
+    {
+      "name": "is_weekend",
+      "kind": "flag",
+      "definition": "Saturday or Sunday",
+      "availability_assumption": "Known in advance",
+      "allowed_for_model_input": true,
+      "missingness": "null when fewer than min_valid_hours valid hours (weather) or insufficient history (lags)"
+    },
+    {
+      "name": "is_public_holiday",
+      "kind": "flag",
+      "definition": "German national public holiday",
+      "availability_assumption": "Known in advance",
+      "allowed_for_model_input": true,
+      "missingness": "null when fewer than min_valid_hours valid hours (weather) or insufficient history (lags)"
+    },
+    {
+      "name": "temp_mean_c",
+      "kind": "numeric",
+      "definition": "mean hourly air temperature, degC",
+      "availability_assumption": "Same-day OBSERVED weather standing in for a day-ahead forecast (perfect-forecast assumption; scores are an upper bound)",
+      "allowed_for_model_input": true,
+      "missingness": "null when fewer than min_valid_hours valid hours (weather) or insufficient history (lags)"
+    },
+    {
+      "name": "temp_min_c",
+      "kind": "numeric",
+      "definition": "min hourly temperature, degC",
+      "availability_assumption": "Same-day OBSERVED weather standing in for a day-ahead forecast (perfect-forecast assumption; scores are an upper bound)",
+      "allowed_for_model_input": true,
+      "missingness": "null when fewer than min_valid_hours valid hours (weather) or insufficient history (lags)"
+    },
+    {
+      "name": "temp_max_c",
+      "kind": "numeric",
+      "definition": "max hourly temperature, degC",
+      "availability_assumption": "Same-day OBSERVED weather standing in for a day-ahead forecast (perfect-forecast assumption; scores are an upper bound)",
+      "allowed_for_model_input": true,
+      "missingness": "null when fewer than min_valid_hours valid hours (weather) or insufficient history (lags)"
+    },
+    {
+      "name": "frost_day",
+      "kind": "flag",
+      "definition": "temp_min_c <= 0",
+      "availability_assumption": "Same-day OBSERVED weather standing in for a day-ahead forecast (perfect-forecast assumption; scores are an upper bound)",
+      "allowed_for_model_input": true,
+      "missingness": "null when fewer than min_valid_hours valid hours (weather) or insufficient history (lags)"
+    },
+    {
+      "name": "rh_mean_pct",
+      "kind": "numeric",
+      "definition": "mean relative humidity, %",
+      "availability_assumption": "Same-day OBSERVED weather standing in for a day-ahead forecast (perfect-forecast assumption; scores are an upper bound)",
+      "allowed_for_model_input": true,
+      "missingness": "null when fewer than min_valid_hours valid hours (weather) or insufficient history (lags)"
+    },
+    {
+      "name": "wind_mean_ms",
+      "kind": "numeric",
+      "definition": "mean hourly wind speed, m/s",
+      "availability_assumption": "Same-day OBSERVED weather standing in for a day-ahead forecast (perfect-forecast assumption; scores are an upper bound)",
+      "allowed_for_model_input": true,
+      "missingness": "null when fewer than min_valid_hours valid hours (weather) or insufficient history (lags)"
+    },
+    {
+      "name": "wind_max_ms",
+      "kind": "numeric",
+      "definition": "max hourly-mean wind speed, m/s",
+      "availability_assumption": "Same-day OBSERVED weather standing in for a day-ahead forecast (perfect-forecast assumption; scores are an upper bound)",
+      "allowed_for_model_input": true,
+      "missingness": "null when fewer than min_valid_hours valid hours (weather) or insufficient history (lags)"
+    },
+    {
+      "name": "gust_max_ms",
+      "kind": "numeric",
+      "definition": "max hourly gust (FX_911), m/s",
+      "availability_assumption": "Same-day OBSERVED weather standing in for a day-ahead forecast (perfect-forecast assumption; scores are an upper bound)",
+      "allowed_for_model_input": true,
+      "missingness": "null when fewer than min_valid_hours valid hours (weather) or insufficient history (lags)"
+    },
+    {
+      "name": "gust_hours_ge15",
+      "kind": "count",
+      "definition": "hours with gust >= 15 m/s",
+      "availability_assumption": "Same-day OBSERVED weather standing in for a day-ahead forecast (perfect-forecast assumption; scores are an upper bound)",
+      "allowed_for_model_input": true,
+      "missingness": "null when fewer than min_valid_hours valid hours (weather) or insufficient history (lags)"
+    },
+    {
+      "name": "precip_sum_mm",
+      "kind": "numeric",
+      "definition": "daily precipitation, mm",
+      "availability_assumption": "Same-day OBSERVED weather standing in for a day-ahead forecast (perfect-forecast assumption; scores are an upper bound)",
+      "allowed_for_model_input": true,
+      "missingness": "null when fewer than min_valid_hours valid hours (weather) or insufficient history (lags)"
+    },
+    {
+      "name": "precip_max_1h_mm",
+      "kind": "numeric",
+      "definition": "max hourly precipitation, mm",
+      "availability_assumption": "Same-day OBSERVED weather standing in for a day-ahead forecast (perfect-forecast assumption; scores are an upper bound)",
+      "allowed_for_model_input": true,
+      "missingness": "null when fewer than min_valid_hours valid hours (weather) or insufficient history (lags)"
+    },
+    {
+      "name": "precip_hours",
+      "kind": "count",
+      "definition": "hours with >= 0.1 mm",
+      "availability_assumption": "Same-day OBSERVED weather standing in for a day-ahead forecast (perfect-forecast assumption; scores are an upper bound)",
+      "allowed_for_model_input": true,
+      "missingness": "null when fewer than min_valid_hours valid hours (weather) or insufficient history (lags)"
+    },
+    {
+      "name": "cold_precip_hours",
+      "kind": "count",
+      "definition": "hours with >= 0.1 mm and temp <= 1 degC (snow/ice proxy)",
+      "availability_assumption": "Same-day OBSERVED weather standing in for a day-ahead forecast (perfect-forecast assumption; scores are an upper bound)",
+      "allowed_for_model_input": true,
+      "missingness": "null when fewer than min_valid_hours valid hours (weather) or insufficient history (lags)"
+    },
+    {
+      "name": "vis_min_m",
+      "kind": "numeric",
+      "definition": "minimum hourly visibility, m",
+      "availability_assumption": "Same-day OBSERVED weather standing in for a day-ahead forecast (perfect-forecast assumption; scores are an upper bound)",
+      "allowed_for_model_input": true,
+      "missingness": "null when fewer than min_valid_hours valid hours (weather) or insufficient history (lags)"
+    },
+    {
+      "name": "low_vis_hours_lt1000",
+      "kind": "count",
+      "definition": "hours with visibility < 1000 m",
+      "availability_assumption": "Same-day OBSERVED weather standing in for a day-ahead forecast (perfect-forecast assumption; scores are an upper bound)",
+      "allowed_for_model_input": true,
+      "missingness": "null when fewer than min_valid_hours valid hours (weather) or insufficient history (lags)"
+    },
+    {
+      "name": "vis_hours_lt5000",
+      "kind": "count",
+      "definition": "hours with visibility < 5000 m",
+      "availability_assumption": "Same-day OBSERVED weather standing in for a day-ahead forecast (perfect-forecast assumption; scores are an upper bound)",
+      "allowed_for_model_input": true,
+      "missingness": "null when fewer than min_valid_hours valid hours (weather) or insufficient history (lags)"
+    },
+    {
+      "name": "fog_hours",
+      "kind": "count",
+      "definition": "hours with a fog weather code (WMO 4677/4680)",
+      "availability_assumption": "Same-day OBSERVED weather standing in for a day-ahead forecast (perfect-forecast assumption; scores are an upper bound)",
+      "allowed_for_model_input": true,
+      "missingness": "null when fewer than min_valid_hours valid hours (weather) or insufficient history (lags)"
+    },
+    {
+      "name": "thunder_hours",
+      "kind": "count",
+      "definition": "hours with a thunderstorm weather code",
+      "availability_assumption": "Same-day OBSERVED weather standing in for a day-ahead forecast (perfect-forecast assumption; scores are an upper bound)",
+      "allowed_for_model_input": true,
+      "missingness": "null when fewer than min_valid_hours valid hours (weather) or insufficient history (lags)"
+    },
+    {
+      "name": "snow_hours",
+      "kind": "count",
+      "definition": "hours with a snow weather code",
+      "availability_assumption": "Same-day OBSERVED weather standing in for a day-ahead forecast (perfect-forecast assumption; scores are an upper bound)",
+      "allowed_for_model_input": true,
+      "missingness": "null when fewer than min_valid_hours valid hours (weather) or insufficient history (lags)"
+    },
+    {
+      "name": "freezing_hours",
+      "kind": "count",
+      "definition": "hours with freezing drizzle/rain code",
+      "availability_assumption": "Same-day OBSERVED weather standing in for a day-ahead forecast (perfect-forecast assumption; scores are an upper bound)",
+      "allowed_for_model_input": true,
+      "missingness": "null when fewer than min_valid_hours valid hours (weather) or insufficient history (lags)"
+    },
+    {
+      "name": "arrivals_lag1",
+      "kind": "numeric",
+      "definition": "IFR arrivals previous day",
+      "availability_assumption": "Computed from days strictly before the row's day (known at the start of the day)",
+      "allowed_for_model_input": true,
+      "missingness": "null when fewer than min_valid_hours valid hours (weather) or insufficient history (lags)"
+    },
+    {
+      "name": "arrivals_lag7",
+      "kind": "numeric",
+      "definition": "IFR arrivals same weekday last week",
+      "availability_assumption": "Computed from days strictly before the row's day (known at the start of the day)",
+      "allowed_for_model_input": true,
+      "missingness": "null when fewer than min_valid_hours valid hours (weather) or insufficient history (lags)"
+    },
+    {
+      "name": "arrivals_mean_7d",
+      "kind": "numeric",
+      "definition": "mean arrivals over previous 7 days",
+      "availability_assumption": "Computed from days strictly before the row's day (known at the start of the day)",
+      "allowed_for_model_input": true,
+      "missingness": "null when fewer than min_valid_hours valid hours (weather) or insufficient history (lags)"
+    },
+    {
+      "name": "delay_per_arrival_lag1",
+      "kind": "numeric",
+      "definition": "ATFM arrival delay per arrival previous day, min",
+      "availability_assumption": "Computed from days strictly before the row's day (known at the start of the day)",
+      "allowed_for_model_input": true,
+      "missingness": "null when fewer than min_valid_hours valid hours (weather) or insufficient history (lags)"
+    },
+    {
+      "name": "share_delayed15_lag1",
+      "kind": "numeric",
+      "definition": "share of arrivals ATFM-delayed >15 min previous day",
+      "availability_assumption": "Computed from days strictly before the row's day (known at the start of the day)",
+      "allowed_for_model_input": true,
+      "missingness": "null when fewer than min_valid_hours valid hours (weather) or insufficient history (lags)"
+    },
+    {
+      "name": "disrupted_lag1",
+      "kind": "flag",
+      "definition": "previous day was a disrupted day",
+      "availability_assumption": "Computed from days strictly before the row's day (known at the start of the day)",
+      "allowed_for_model_input": true,
+      "missingness": "null when fewer than min_valid_hours valid hours (weather) or insufficient history (lags)"
+    },
+    {
+      "name": "delay_per_arrival_mean_7d",
+      "kind": "numeric",
+      "definition": "mean delay per arrival previous 7 days",
+      "availability_assumption": "Computed from days strictly before the row's day (known at the start of the day)",
+      "allowed_for_model_input": true,
+      "missingness": "null when fewer than min_valid_hours valid hours (weather) or insufficient history (lags)"
+    },
+    {
+      "name": "delay_per_arrival_mean_28d",
+      "kind": "numeric",
+      "definition": "mean delay per arrival previous 28 days",
+      "availability_assumption": "Computed from days strictly before the row's day (known at the start of the day)",
+      "allowed_for_model_input": true,
+      "missingness": "null when fewer than min_valid_hours valid hours (weather) or insufficient history (lags)"
+    },
+    {
+      "name": "disrupted_rate_28d",
+      "kind": "numeric",
+      "definition": "share of disrupted days in previous 28 days",
+      "availability_assumption": "Computed from days strictly before the row's day (known at the start of the day)",
+      "allowed_for_model_input": true,
+      "missingness": "null when fewer than min_valid_hours valid hours (weather) or insufficient history (lags)"
+    },
+    {
+      "name": "weather_delay_per_arrival_mean_28d",
+      "kind": "numeric",
+      "definition": "mean weather-coded delay per arrival previous 28 days",
+      "availability_assumption": "Computed from days strictly before the row's day (known at the start of the day)",
+      "allowed_for_model_input": true,
+      "missingness": "null when fewer than min_valid_hours valid hours (weather) or insufficient history (lags)"
+    }
+  ],
+  "targets": {
+    "disrupted_day": "share_arrivals_delayed_15 >= 0.02",
+    "severe_disrupted_day": "share_arrivals_delayed_15 >= 0.1",
+    "any_atfm_delay_day": "atfm_delay_min > 0",
+    "weather_atfm_day": "delay_weather_min > 0",
+    "atfm_delay_per_arrival": "atfm_delay_min / arrivals",
+    "share_arrivals_delayed_15": "arrivals_atfm_delayed_15 / arrivals"
+  },
+  "forbidden_same_day_outcomes": [
+    "arrivals",
+    "atfm_delay_min",
+    "arrivals_atfm_delayed",
+    "arrivals_atfm_delayed_15",
+    "delay_accident_min",
+    "delay_atc_capacity_min",
+    "delay_deicing_min",
+    "delay_equipment_non_atc_min",
+    "delay_aerodrome_capacity_min",
+    "delay_atc_industrial_min",
+    "delay_airspace_mgmt_min",
+    "delay_industrial_non_atc_min",
+    "delay_other_min",
+    "delay_special_event_min",
+    "delay_atc_routeing_min",
+    "delay_atc_staffing_min",
+    "delay_equipment_atc_min",
+    "delay_environment_min",
+    "delay_weather_min",
+    "delay_not_specified_min",
+    "disrupted_day",
+    "severe_disrupted_day",
+    "any_atfm_delay_day",
+    "weather_atfm_day",
+    "atfm_delay_per_arrival",
+    "share_arrivals_delayed_15",
+    "atfm_delay_min",
+    "weather_delay_per_arrival"
+  ],
+  "keys": [
+    "airport_icao",
+    "date",
+    "split"
+  ],
+  "note": "Target definition is EUROCONTROL ATFM airport arrival delay (network regulations), not gate/schedule punctuality."
+}

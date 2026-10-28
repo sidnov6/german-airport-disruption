@@ -1,0 +1,9 @@
+data/raw/
+__pycache__/
+.ipynb_checkpoints/
+.DS_Store
+*.part
+_orig/
+paper/*.aux
+paper/*.log
+paper/*.out

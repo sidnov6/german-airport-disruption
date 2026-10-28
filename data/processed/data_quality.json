@@ -1,0 +1,525 @@
+{
+  "dataset_version": "de_airports_daily_v1",
+  "config_hash": "503e5a902822d03aed3e7484e2757ca2559da1731f7fd051968b96c2c07552c7",
+  "code_version": "1.0.0",
+  "built_utc": "2026-10-25T14:55:38Z",
+  "rows": 52596,
+  "airports": 12,
+  "date_range": [
+    "2014-01-01",
+    "2025-12-31"
+  ],
+  "by_split": {
+    "calibrate": {
+      "rows": 4380,
+      "labeled": 4380,
+      "disrupted": 364,
+      "rate": 0.08310502283105023
+    },
+    "model_select": {
+      "rows": 4380,
+      "labeled": 4371,
+      "disrupted": 302,
+      "rate": 0.06909174102036147
+    },
+    "test": {
+      "rows": 8772,
+      "labeled": 8771,
+      "disrupted": 533,
+      "rate": 0.06076844145479421
+    },
+    "train": {
+      "rows": 35064,
+      "labeled": 35027,
+      "disrupted": 2051,
+      "rate": 0.0585548291318126
+    }
+  },
+  "by_airport": {
+    "EDDC": {
+      "rows": 4383,
+      "labeled": 4368,
+      "disrupted": 4,
+      "rate": 0.0009157509157509158
+    },
+    "EDDF": {
+      "rows": 4383,
+      "labeled": 4383,
+      "disrupted": 850,
+      "rate": 0.19393109742185718
+    },
+    "EDDG": {
+      "rows": 4383,
+      "labeled": 4370,
+      "disrupted": 2,
+      "rate": 0.0004576659038901602
+    },
+    "EDDH": {
+      "rows": 4383,
+      "labeled": 4383,
+      "disrupted": 286,
+      "rate": 0.06525211042664841
+    },
+    "EDDK": {
+      "rows": 4383,
+      "labeled": 4383,
+      "disrupted": 596,
+      "rate": 0.13597992242756102
+    },
+    "EDDL": {
+      "rows": 4383,
+      "labeled": 4383,
+      "disrupted": 523,
+      "rate": 0.11932466347250742
+    },
+    "EDDM": {
+      "rows": 4383,
+      "labeled": 4383,
+      "disrupted": 451,
+      "rate": 0.1028975587497148
+    },
+    "EDDN": {
+      "rows": 4383,
+      "labeled": 4383,
+      "disrupted": 7,
+      "rate": 0.0015970796258270592
+    },
+    "EDDP": {
+      "rows": 4383,
+      "labeled": 4383,
+      "disrupted": 229,
+      "rate": 0.05224731918777093
+    },
+    "EDDS": {
+      "rows": 4383,
+      "labeled": 4367,
+      "disrupted": 172,
+      "rate": 0.03938630638882528
+    },
+    "EDDV": {
+      "rows": 4383,
+      "labeled": 4383,
+      "disrupted": 34,
+      "rate": 0.007757243896874287
+    },
+    "EDDW": {
+      "rows": 4383,
+      "labeled": 4380,
+      "disrupted": 96,
+      "rate": 0.021917808219178082
+    }
+  },
+  "by_year": {
+    "2014": {
+      "rows": 4380,
+      "labeled": 4380,
+      "disrupted": 251,
+      "rate": 0.05730593607305936
+    },
+    "2015": {
+      "rows": 4380,
+      "labeled": 4380,
+      "disrupted": 230,
+      "rate": 0.05251141552511415
+    },
+    "2016": {
+      "rows": 4392,
+      "labeled": 4392,
+      "disrupted": 271,
+      "rate": 0.06170309653916211
+    },
+    "2017": {
+      "rows": 4380,
+      "labeled": 4380,
+      "disrupted": 340,
+      "rate": 0.0776255707762557
+    },
+    "2018": {
+      "rows": 4380,
+      "labeled": 4380,
+      "disrupted": 408,
+      "rate": 0.09315068493150686
+    },
+    "2019": {
+      "rows": 4380,
+      "labeled": 4380,
+      "disrupted": 381,
+      "rate": 0.08698630136986302
+    },
+    "2020": {
+      "rows": 4392,
+      "labeled": 4358,
+      "disrupted": 37,
+      "rate": 0.00849013308857274
+    },
+    "2021": {
+      "rows": 4380,
+      "labeled": 4377,
+      "disrupted": 133,
+      "rate": 0.030386109207219555
+    },
+    "2022": {
+      "rows": 4380,
+      "labeled": 4371,
+      "disrupted": 302,
+      "rate": 0.06909174102036147
+    },
+    "2023": {
+      "rows": 4380,
+      "labeled": 4380,
+      "disrupted": 364,
+      "rate": 0.08310502283105023
+    },
+    "2024": {
+      "rows": 4392,
+      "labeled": 4391,
+      "disrupted": 278,
+      "rate": 0.06331131860624004
+    },
+    "2025": {
+      "rows": 4380,
+      "labeled": 4380,
+      "disrupted": 255,
+      "rate": 0.05821917808219178
+    }
+  },
+  "missing_predictors": {
+    "temp_mean_c": 185,
+    "temp_min_c": 185,
+    "temp_max_c": 185,
+    "frost_day": 185,
+    "rh_mean_pct": 197,
+    "wind_mean_ms": 304,
+    "wind_max_ms": 304,
+    "gust_max_ms": 321,
+    "gust_hours_ge15": 321,
+    "precip_sum_mm": 192,
+    "precip_max_1h_mm": 192,
+    "precip_hours": 192,
+    "cold_precip_hours": 192,
+    "vis_min_m": 754,
+    "low_vis_hours_lt1000": 754,
+    "vis_hours_lt5000": 754,
+    "fog_hours": 826,
+    "thunder_hours": 826,
+    "snow_hours": 826,
+    "freezing_hours": 826,
+    "arrivals_lag1": 50,
+    "arrivals_lag7": 122,
+    "arrivals_mean_7d": 92,
+    "delay_per_arrival_lag1": 59,
+    "share_delayed15_lag1": 59,
+    "disrupted_lag1": 59,
+    "delay_per_arrival_mean_7d": 99,
+    "delay_per_arrival_mean_28d": 281,
+    "disrupted_rate_28d": 281,
+    "weather_delay_per_arrival_mean_28d": 281
+  },
+  "missing_targets": 47,
+  "eurocontrol_missing_airport_days": 38,
+  "eurocontrol": {
+    "2014": {
+      "rows_all_airports": 98869,
+      "rows_selected": 4380,
+      "latin1_fallback_lines": 0,
+      "atfm_versions": [
+        "v1"
+      ]
+    },
+    "2015": {
+      "rows_all_airports": 98953,
+      "rows_selected": 4380,
+      "latin1_fallback_lines": 0,
+      "atfm_versions": [
+        "v1"
+      ]
+    },
+    "2016": {
+      "rows_all_airports": 99159,
+      "rows_selected": 4392,
+      "latin1_fallback_lines": 0,
+      "atfm_versions": [
+        "v1",
+        "v2"
+      ]
+    },
+    "2017": {
+      "rows_all_airports": 99144,
+      "rows_selected": 4380,
+      "latin1_fallback_lines": 0,
+      "atfm_versions": [
+        "v2"
+      ]
+    },
+    "2018": {
+      "rows_all_airports": 99100,
+      "rows_selected": 4380,
+      "latin1_fallback_lines": 0,
+      "atfm_versions": [
+        "v2"
+      ]
+    },
+    "2019": {
+      "rows_all_airports": 99813,
+      "rows_selected": 4380,
+      "latin1_fallback_lines": 0,
+      "atfm_versions": [
+        "v2"
+      ]
+    },
+    "2020": {
+      "rows_all_airports": 93545,
+      "rows_selected": 4364,
+      "latin1_fallback_lines": 0,
+      "atfm_versions": [
+        "v2"
+      ]
+    },
+    "2021": {
+      "rows_all_airports": 99392,
+      "rows_selected": 4378,
+      "latin1_fallback_lines": 0,
+      "atfm_versions": [
+        "v2"
+      ]
+    },
+    "2022": {
+      "rows_all_airports": 100163,
+      "rows_selected": 4372,
+      "latin1_fallback_lines": 0,
+      "atfm_versions": [
+        "v2"
+      ]
+    },
+    "2023": {
+      "rows_all_airports": 100308,
+      "rows_selected": 4380,
+      "latin1_fallback_lines": 0,
+      "atfm_versions": [
+        "v2"
+      ]
+    },
+    "2024": {
+      "rows_all_airports": 100573,
+      "rows_selected": 4392,
+      "latin1_fallback_lines": 0,
+      "atfm_versions": [
+        "v2"
+      ]
+    },
+    "2025": {
+      "rows_all_airports": 101129,
+      "rows_selected": 4380,
+      "latin1_fallback_lines": 2190,
+      "atfm_versions": [
+        "v2"
+      ]
+    }
+  },
+  "weather": {
+    "EDDF": {
+      "station": "01420",
+      "TU_hours": 105192,
+      "FF_hours": 104601,
+      "RR_hours": 105136,
+      "VV_hours": 104966,
+      "FX_hours": 104301,
+      "WW_hours": 104824
+    },
+    "EDDM": {
+      "station": "01262",
+      "TU_hours": 105192,
+      "FF_hours": 105064,
+      "RR_hours": 105190,
+      "VV_hours": 104832,
+      "FX_hours": 104763,
+      "WW_hours": 104838
+    },
+    "EDDL": {
+      "station": "01078",
+      "TU_hours": 105192,
+      "FF_hours": 104805,
+      "RR_hours": 105175,
+      "VV_hours": 104748,
+      "FX_hours": 104640,
+      "WW_hours": 104651
+    },
+    "EDDH": {
+      "station": "01975",
+      "TU_hours": 105192,
+      "FF_hours": 104757,
+      "RR_hours": 105122,
+      "VV_hours": 104902,
+      "FX_hours": 104603,
+      "WW_hours": 104857
+    },
+    "EDDK": {
+      "station": "02667",
+      "TU_hours": 105192,
+      "FF_hours": 105096,
+      "RR_hours": 105180,
+      "VV_hours": 103675,
+      "FX_hours": 104953,
+      "WW_hours": 103705
+    },
+    "EDDS": {
+      "station": "04931",
+      "TU_hours": 105192,
+      "FF_hours": 105148,
+      "RR_hours": 105188,
+      "VV_hours": 93511,
+      "FX_hours": 104985,
+      "WW_hours": 93521
+    },
+    "EDDP": {
+      "station": "02932",
+      "TU_hours": 105192,
+      "FF_hours": 105189,
+      "RR_hours": 105168,
+      "VV_hours": 105023,
+      "FX_hours": 105118,
+      "WW_hours": 104072
+    },
+    "EDDV": {
+      "station": "02014",
+      "TU_hours": 105192,
+      "FF_hours": 104556,
+      "RR_hours": 105126,
+      "VV_hours": 103737,
+      "FX_hours": 104320,
+      "WW_hours": 103676
+    },
+    "EDDN": {
+      "station": "03668",
+      "TU_hours": 105192,
+      "FF_hours": 104991,
+      "RR_hours": 105180,
+      "VV_hours": 105158,
+      "FX_hours": 104948,
+      "WW_hours": 104961
+    },
+    "EDDW": {
+      "station": "00691",
+      "TU_hours": 105192,
+      "FF_hours": 105060,
+      "RR_hours": 105169,
+      "VV_hours": 104868,
+      "FX_hours": 104994,
+      "WW_hours": 104812
+    },
+    "EDDC": {
+      "station": "01048",
+      "TU_hours": 105192,
+      "FF_hours": 105183,
+      "RR_hours": 105144,
+      "VV_hours": 105186,
+      "FX_hours": 104837,
+      "WW_hours": 105119
+    },
+    "EDDG": {
+      "station": "01766",
+      "TU_hours": 105192,
+      "FF_hours": 104890,
+      "RR_hours": 105173,
+      "VV_hours": 105169,
+      "FX_hours": 104773,
+      "WW_hours": 105109
+    }
+  },
+  "checks": {
+    "row_count_airports_x_days": true,
+    "keys_unique": true,
+    "every_row_has_split": true,
+    "targets_consistent": true,
+    "no_same_day_outcome_in_predictors": true,
+    "lag1_uses_previous_day": true,
+    "each_split_has_both_classes": true,
+    "stations_at_airports": true
+  },
+  "station_distance_km": {
+    "EDDF": {
+      "station": "01420",
+      "station_name": "Frankfurt/Main",
+      "lat": 50.0259,
+      "lon": 8.5213,
+      "distance_km": 3.62
+    },
+    "EDDM": {
+      "station": "01262",
+      "station_name": "M\u00fcnchen-Flughafen",
+      "lat": 48.3477,
+      "lon": 11.8134,
+      "distance_km": 2.13
+    },
+    "EDDL": {
+      "station": "01078",
+      "station_name": "D\u00fcsseldorf",
+      "lat": 51.296,
+      "lon": 6.7686,
+      "distance_km": 0.73
+    },
+    "EDDH": {
+      "station": "01975",
+      "station_name": "Hamburg-Fuhlsb\u00fcttel",
+      "lat": 53.6332,
+      "lon": 9.9881,
+      "distance_km": 0.31
+    },
+    "EDDK": {
+      "station": "02667",
+      "station_name": "K\u00f6ln/Bonn",
+      "lat": 50.8645,
+      "lon": 7.1575,
+      "distance_km": 1.05
+    },
+    "EDDS": {
+      "station": "04931",
+      "station_name": "Stuttgart-Echterdingen",
+      "lat": 48.6883,
+      "lon": 9.2235,
+      "distance_km": 0.21
+    },
+    "EDDP": {
+      "station": "02932",
+      "station_name": "Leipzig/Halle",
+      "lat": 51.4347,
+      "lon": 12.2396,
+      "distance_km": 0.29
+    },
+    "EDDV": {
+      "station": "02014",
+      "station_name": "Hannover",
+      "lat": 52.4644,
+      "lon": 9.6779,
+      "distance_km": 0.61
+    },
+    "EDDN": {
+      "station": "03668",
+      "station_name": "N\u00fcrnberg",
+      "lat": 49.503,
+      "lon": 11.0549,
+      "distance_km": 1.74
+    },
+    "EDDW": {
+      "station": "00691",
+      "station_name": "Bremen",
+      "lat": 53.0451,
+      "lon": 8.7981,
+      "distance_km": 0.81
+    },
+    "EDDC": {
+      "station": "01048",
+      "station_name": "Dresden-Klotzsche",
+      "lat": 51.1278,
+      "lon": 13.7543,
+      "distance_km": 1.06
+    },
+    "EDDG": {
+      "station": "01766",
+      "station_name": "M\u00fcnster/Osnabr\u00fcck",
+      "lat": 52.1344,
+      "lon": 7.6969,
+      "distance_km": 0.83
+    }
+  }
+}
