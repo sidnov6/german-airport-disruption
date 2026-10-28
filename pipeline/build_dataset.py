@@ -634,8 +634,6 @@ def run(cfg: DailyConfig) -> dict:
     out = cfg.out_dir
     out.mkdir(parents=True, exist_ok=True)
     df.to_parquet(out / "airport_day.parquet", index=False)
-    feats = df[list(dict.fromkeys(["airport_icao", "date", "split"] + contract["predictor_allowlist"]))]
-    feats.to_parquet(out / "airport_day_features.parquet", index=False)
     df.assign(date=df["date"].dt.strftime("%Y-%m-%d")).to_csv(out / "airport_day.csv", index=False)
     (out / "feature_contract.json").write_text(json.dumps(contract, indent=2))
     (out / "data_quality.json").write_text(json.dumps(q, indent=2, default=str))

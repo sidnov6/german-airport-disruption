@@ -110,34 +110,6 @@ def panel_pr_curves(lr, gb):
     save(fig, "panelB_precision_recall_2024_2025.png")
 
 
-def panel_airport_ap(lr, gb):
-    """Extra panel: average precision per airport, for airports with at least 20 disrupted test days."""
-    rows = []
-    for icao, g in lr.groupby("airport_icao"):
-        n = int(g["actual"].sum())
-        if n < 20:
-            continue
-        g2 = gb[gb["airport_icao"] == icao]
-        rows.append({"airport": f"{g['airport_name'].iloc[0]}\n({n} days)", "n": n,
-                     "Logistic regression": average_precision_score(g["actual"], g["probability"]),
-                     "LightGBM": average_precision_score(g2["actual"], g2["probability"]),
-                     "Previous 28-day rate": average_precision_score(g["actual"], g["benchmark_28d"])})
-    t = pd.DataFrame(rows).sort_values("n", ascending=False)
-    x = np.arange(len(t))
-    w = 0.26
-    fig, ax = plt.subplots(figsize=(7.2, 3.8))
-    for k, (col, color) in enumerate([("Logistic regression", LOGISTIC), ("LightGBM", LIGHTGBM),
-                                      ("Previous 28-day rate", HISTORY)]):
-        ax.bar(x + (k - 1) * w, t[col], width=w - 0.03, color=color, label=col)
-    ax.set_xticks(x, t["airport"], fontsize=9)
-    ax.set_ylabel("Average precision, 2024-2025")
-    ax.set_ylim(0, 0.7)
-    ax.grid(axis="y", color=GRID, linewidth=0.8)
-    ax.set_axisbelow(True)
-    ax.legend(frameon=False, ncol=3, loc="upper right", fontsize=9)
-    save(fig, "extra_average_precision_by_airport.png")
-
-
 def panel_weather_risk(df):
     """Panel C: weather sensitivity by airport (the BI notebook's risk-ratio matrix).
 
@@ -395,7 +367,6 @@ def main():
         df[c] = df[c].astype("float64")
     panel_map(df)
     panel_pr_curves(lr, gb)
-    panel_airport_ap(lr, gb)
     panel_weather_risk(df)
     panel_traffic_weather(df)
     panel_pipeline()

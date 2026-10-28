@@ -2,7 +2,7 @@
 
 Introduction to Data Analytics, project repository.
 
-We combine public EUROCONTROL air traffic flow management (ATFM) delay data with hourly weather observations from the German Weather Service (DWD) to study disrupted operating days at 12 German airports from 2014 to 2025. The repository contains the data pipeline, the processed dataset, two descriptive (BI) notebooks, four model notebooks and the micropublication.
+We combine public EUROCONTROL air traffic flow management (ATFM) delay data with hourly weather observations from the German Weather Service (DWD) to study disrupted operating days at 12 German airports from 2014 to 2025. The repository contains the data pipeline, the processed dataset, two descriptive (BI) notebooks, four model notebooks, the micropublication and the presentation slides.
 
 **Question:** how well can simple linear models and gradient-boosted trees estimate the likelihood and severity of daily ATFM arrival disruption at German airports?
 
@@ -60,9 +60,10 @@ notebooks/
   05_ridge_regression.ipynb         delay per arrival, linear model
   06_lightgbm_regression.ipynb      delay per arrival, gradient boosting + comparison
 outputs/              saved models, test predictions and metrics per model notebook
-figures/              micropublication panels A to E (+ one extra) and make_figures.py
+figures/              micropublication panels A to E and make_figures.py
 docs/DATA.md          data sources and processing
-paper/                micropublication (LaTeX)
+paper/                micropublication (LaTeX source and PDF)
+presentation/         presentation slides (PDF)
 ```
 
 ## Method in short
