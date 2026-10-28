@@ -145,7 +145,6 @@ def panel_weather_risk(df):
     days without it, and a missing weather reading counts as the condition not occurring.
     Every value is shown; cells resting on fewer than 10 disrupted days are hatched.
     """
-    from matplotlib.colors import Normalize
     from matplotlib.patches import Rectangle
 
     conditions = sorted(WEATHER)                      # alphabetical, as in the notebook
@@ -161,28 +160,32 @@ def panel_weather_risk(df):
             if pd.notna(with_w) and pd.notna(without_w) and without_w > 0:
                 ratios.loc[airport, name] = with_w / without_w
 
-    cmap, norm = plt.get_cmap("viridis"), Normalize(vmin=0, vmax=5)
+    # Blue = less likely, grey = no effect, red = more likely; log2 scale, clipped at the ends
+    log_ratio = np.log2(ratios.astype(float).clip(lower=2 ** -1.5))
+    cmap = LinearSegmentedColormap.from_list("div", [LOGISTIC, NEUTRAL, RED])
+    norm = TwoSlopeNorm(vmin=-1.5, vcenter=0, vmax=2.5)
     fig, ax = plt.subplots(figsize=(3.6, 3.3))
-    im = ax.pcolormesh(ratios.values.astype(float), cmap=cmap, norm=norm, edgecolors=SURFACE, linewidth=1.6)
+    im = ax.pcolormesh(log_ratio.values, cmap=cmap, norm=norm, edgecolors=SURFACE, linewidth=1.6)
     ax.invert_yaxis()
     for i in range(ratios.shape[0]):
         for j in range(ratios.shape[1]):
             v, events = ratios.iloc[i, j], int(counts.iloc[i, j])
-            r, g, b, _ = cmap(norm(min(v, 5)))
+            r, g, b, _ = cmap(norm(log_ratio.iloc[i, j]))
             ink = "#111111" if 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.45 else "#ffffff"
             ax.text(j + 0.5, i + 0.5, f"{v:.1f}\u00d7", ha="center", va="center", fontsize=5.6,
                     fontweight="bold" if events >= MIN_EVENTS else "normal", color=ink)
             if events < MIN_EVENTS:  # rests on very few disrupted days: keep the value but mark it
                 ax.add_patch(Rectangle((j + 0.03, i + 0.05), 0.94, 0.9, fill=False, hatch="////",
-                                       edgecolor=(1, 1, 1, 0.28), linewidth=0))
+                                       edgecolor=(0, 0, 0, 0.16), linewidth=0))
     ax.set_xticks(np.arange(len(conditions)) + 0.5, [c.replace(" ", "\n") for c in conditions], fontsize=5.8)
     ax.set_yticks(np.arange(len(airports)) + 0.5, airports, fontsize=5.8)
     ax.set_xlabel("Weather condition", fontsize=6.2, labelpad=4)
     ax.tick_params(length=0, pad=3)
     for s in ax.spines.values():
         s.set_visible(False)
-    cb = fig.colorbar(im, ax=ax, fraction=0.045, pad=0.03, extend="max")
-    cb.set_ticks([0, 1, 2, 3, 4, 5], labels=["0\u00d7", "1\u00d7", "2\u00d7", "3\u00d7", "4\u00d7", "5\u00d7+"])
+    cb = fig.colorbar(im, ax=ax, fraction=0.045, pad=0.03, extend="both")
+    ticks = [0.5, 1, 2, 4]
+    cb.set_ticks(np.log2(ticks), labels=[f"{t:g}\u00d7" for t in ticks])
     cb.set_label("Disruption risk ratio (with / without)", fontsize=6.2)
     cb.ax.tick_params(labelsize=5.8, length=0)
     cb.outline.set_visible(False)
