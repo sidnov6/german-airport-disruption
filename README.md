@@ -63,7 +63,7 @@ outputs/              saved models, test predictions and metrics per model noteb
 figures/              micropublication panels A to E and make_figures.py
 docs/DATA.md          data sources and processing
 paper/                micropublication (LaTeX source and PDF)
-presentation/         presentation slides (PDF)
+presentation/         presentation slides (PowerPoint with the embedded video, and PDF)
 ```
 
 ## Method in short
